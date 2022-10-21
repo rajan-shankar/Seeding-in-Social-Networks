@@ -124,3 +124,22 @@ def get_prob_centralities(g, n_samples = 1000, p = 0.2):
     
     
     return seedDataProbs, measuresData
+
+
+#combine output from the above function => spearman correlation between each type of seeding and centrality measure
+
+def get_spearman(seedDataProbs, measuresData):
+    combinedDataProbs = pd.concat([measuresData, seedDataProbs], axis=1)
+
+    seedNames = ["Random", "Friend", "Pair"]
+    meltedDataProbs = pd.melt(combinedDataProbs.reset_index(), id_vars = [*seedNames, "index"], value_name = 'Measure Value', var_name = "Measure")
+    meltedDataProbs = pd.melt(meltedDataProbs, id_vars = ["index", "Measure", "Measure Value"], value_name = 'Selection Probability', var_name = "Targeting Method")
+
+    # Calculating Spearman Correlation
+    spearmanData = meltedDataProbs.groupby(['Targeting Method', 'Measure'])[['Selection Probability','Measure Value']].corr(method="spearman").iloc[0::2,-1]
+    # Dropping level_2 which was artificially created by grouping
+    spearmanData = spearmanData.reset_index().drop('level_2', axis = 1).query("`Measure Value` != 1")
+
+    res = spearmanData.sort_values("Measure").reset_index().drop("index", axis = 1)
+    res.rename(columns={"Measure Value": "SCorrelation"}, inplace = True)
+    return res
