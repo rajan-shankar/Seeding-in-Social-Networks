@@ -2,6 +2,7 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import random
+import itertools
 
 ## SEEDING ALGORITHM
 def get_seeds(g, p, method):
@@ -143,3 +144,84 @@ def get_spearman(seedDataProbs, measuresData):
     res = spearmanData.sort_values("Measure").reset_index().drop("index", axis = 1)
     res.rename(columns={"Measure Value": "SCorrelation"}, inplace = True)
     return res
+
+
+def num_paths2(g, i, j):
+    #i,j = name of nodes
+    #number of paths length 2 between node i and node j in graph g
+    #Note: this function covers cases when g.nodes() is not in ascedign order
+    
+    A = nx.adjacency_matrix(g)#ordering of rows/columns is by G.nodes(), not necessarily ascending
+    A = A.todense()
+    
+    A_sq = np.matmul(A,A) #(A^2)_{ij} = how many paths length 2 betwenn node i and j
+    
+    #what's the index of node i and node j in g.nodes?
+    ns = list(g.nodes())
+    ind_i = ns.index(i)
+    ind_j = ns.index(j)
+    
+    return A_sq[ind_i, ind_j]
+
+
+def num_2seed_triangles(g, seeds):
+    #how many triangles of (target a) - (target b)
+    #                          \          /
+    #                          (untargeted)
+    count = 0
+    for comb in itertools.combinations(seeds, 2): #for each size-2 combination of seeds (targets)
+        #print(comb)
+
+        #how to identify such a triangle:
+
+        #the seeds are connected
+        if g.has_edge(comb[0],comb[1]):
+            #AND There is a path length 2 through an UNTARGETED node.
+
+            #we have to exclude paths through another TARGET node. 
+            # To do this: get subgraph which removes all other target nodes except comb[0] and comb[1]
+            other_seeds = [seed for seed in seeds if seed not in [comb[0],comb[1]]] 
+            sub_nodes = [node for node in g.nodes() if node not in other_seeds] #remove the other seeds
+            #print(other_seeds)
+            gsub = g.subgraph(sub_nodes)
+            count += num_paths2(gsub,comb[0],comb[1])
+    
+    return count
+
+#note: to get the number of connected triplets where 
+#                      (target a)  (target b)
+#                          \          /
+#                          (untargeted)
+#just need to remove the check that the seeds are connected
+
+
+def num_con_triples(g):
+    #solve for #connected triples from the transitivity formula:
+    # 3*num_triangles/transitivity = #connected triples
+    num_triangles = sum(nx.triangles(g).values()) / 3 #triple-counting each triangle
+    trans = nx.transitivity(g)
+    
+    return (3*num_triangles/trans)
+
+
+def two_seed_tran(g, seeds):
+    return(num_2seed_triangles(g, seeds) / num_con_triples(g))
+
+
+def num_2seed_triangles_around_a_node(g, node, targets_connected=True):
+    
+    adopted = [i for i in g.nodes if g.nodes[i]['state'] == 1]
+    
+    if g.nodes[node]['state'] in adopted:
+        return "node has already adopted"
+    
+    count = 0
+    for comb in itertools.combinations(adopted, 2):  # for each size-2 combination of seeds (targets)
+        if g.has_edge(comb[0],node) and g.has_edge(node,comb[1]):  # the node is connected to the targets
+            if targets_connected:
+                if g.has_edge(comb[0],comb[1]):  # the targets are connected
+                    count += 1
+            else:
+                count += 1
+    
+    return count
