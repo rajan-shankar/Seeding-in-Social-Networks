@@ -469,9 +469,4 @@ Row
 | dur  | duration of exposure period, if known |
 
 
-<!-- ```{r} -->
-<!-- readRDS("taube-transmission-trees.RDS")$tree_mod[[80]] %>%  -->
-<!--   plot() -->
-<!-- ``` -->
-
 

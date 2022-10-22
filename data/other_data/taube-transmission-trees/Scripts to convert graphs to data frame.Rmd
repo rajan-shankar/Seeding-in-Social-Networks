@@ -1,0 +1,31 @@
+---
+title: "Script to convert graphs to data frames"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(igraph)
+```
+
+
+```{r}
+data = readRDS("taube-transmission-trees.RDS")
+```
+
+```{r}
+data = data %>% 
+  arrange(-Size) %>% 
+  head(4) 
+
+
+data %>% 
+  pull(tree_mod) %>% 
+  lapply(as_data_frame) %>% 
+  mapply(write.csv, file = paste0("processedData/", data$id, ".csv"), object = .)
+```
+

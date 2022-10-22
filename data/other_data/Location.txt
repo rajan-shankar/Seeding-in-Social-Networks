@@ -1,0 +1,5 @@
+Enron - http://snap.stanford.edu/data/email-Enron.html
+
+taube-transmission-trees - https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9255728/
+
+friends and bt - https://networks.skewed.de/net/copenhagen#fb_friends_draw
