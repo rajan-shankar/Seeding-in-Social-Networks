@@ -1,0 +1,33 @@
+---
+title: "Linear Regression"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+data = read_csv("seedingKarate.csv")
+```
+
+```{r}
+data %>% 
+  group_by(Measure, `Targeting Method`) %>% 
+  group_modify(~ lm(heatmaply::normalize(`Measure Value`) ~ `Selection Probability`,data = .x) %>% 
+                 broom::tidy()) %>% 
+  ungroup() %>% 
+  filter(term != "(Intercept)") %>% 
+  dplyr::select(Measure, `Targeting Method`, estimate) %>% 
+  pivot_wider(names_from = `Targeting Method`, values_from = estimate) %>% 
+  column_to_rownames("Measure") %>% 
+  t() %>% 
+  data.frame() %>%
+  # dplyr::select(-Degree) %>% 
+  heatmaply::heatmaply(show_dendrogram = c(FALSE, FALSE))
+```
+
