@@ -145,7 +145,6 @@ def get_spearman(seedDataProbs, measuresData):
     res.rename(columns={"Measure Value": "SCorrelation"}, inplace = True)
     return res
 
-
 def num_paths2(g, i, j):
     #i,j = name of nodes
     #number of paths length 2 between node i and node j in graph g
@@ -225,3 +224,43 @@ def num_2seed_triangles_around_a_node(g, node, targets_connected=True):
                 count += 1
     
     return count
+
+#see threshold model.ipynb
+#RUN the above `rep` times, and return a matrix with the corresponding proportions of state 1 (rho/N)
+def get_rhos(gk, q, tmax, rep, seed_method, p = 0.2):
+    
+    N = gk.number_of_nodes()
+    all_rhos = np.zeros(shape=(rep, tmax + 1)) # matrix row: one sample, matrix col: time
+
+    for i in range(rep):
+        rho=[]
+
+        # Initial Condition
+        nx.set_node_attributes(gk,0,name="state")#all state 0 at beginning
+        seeds = get_seeds(gk, p, seed_method)#except the seeds
+        #print("initial seeds:", seeds)
+        for seed in seeds:
+            gk.nodes[seed]['state'] = 1
+
+        rho.append(np.sum([gk.nodes[i]['state'] for i in gk.nodes()]))
+
+
+        # Dynamics
+        for t in range(tmax):
+            for t2 in range(N): # Do N updates, one update for each node, on average
+                n = random.choice(list(gk.nodes()))
+                if gk.nodes[n]['state']==0:#only change if the state is 0. Once state 1, no going back
+                    count=0
+                    for m in gk.neighbors(n):
+                        count = count + gk.nodes[m]['state']
+                    if count/gk.degree(n)> q: #if the proportion of 'infected' > q
+                        gk.nodes[n]['state']=1
+
+            newstates = [gk.nodes[i]['state'] for i in gk.nodes()]
+            rho.append(np.sum(newstates))
+        
+        rho = np.array(rho)/N #get proportion
+        #print(rho)
+        all_rhos[i] = rho
+    
+    return all_rhos
