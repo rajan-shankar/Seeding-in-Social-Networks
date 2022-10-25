@@ -163,29 +163,29 @@ def num_paths2(g, i, j):
     return A_sq[ind_i, ind_j]
 
 
-def num_2seed_triangles(g, seeds):
-    #how many triangles of (target a) - (target b)
-    #                          \          /
-    #                          (untargeted)
-    count = 0
-    for comb in itertools.combinations(seeds, 2): #for each size-2 combination of seeds (targets)
-        #print(comb)
+# def num_2seed_triangles(g, seeds):
+#     #how many triangles of (target a) - (target b)
+#     #                          \          /
+#     #                          (untargeted)
+#     count = 0
+#     for comb in itertools.combinations(seeds, 2): #for each size-2 combination of seeds (targets)
+#         #print(comb)
 
-        #how to identify such a triangle:
+#         #how to identify such a triangle:
 
-        #the seeds are connected
-        if g.has_edge(comb[0],comb[1]):
-            #AND There is a path length 2 through an UNTARGETED node.
+#         #the seeds are connected
+#         if g.has_edge(comb[0],comb[1]):
+#             #AND There is a path length 2 through an UNTARGETED node.
 
-            #we have to exclude paths through another TARGET node. 
-            # To do this: get subgraph which removes all other target nodes except comb[0] and comb[1]
-            other_seeds = [seed for seed in seeds if seed not in [comb[0],comb[1]]] 
-            sub_nodes = [node for node in g.nodes() if node not in other_seeds] #remove the other seeds
-            #print(other_seeds)
-            gsub = g.subgraph(sub_nodes)
-            count += num_paths2(gsub,comb[0],comb[1])
+#             #we have to exclude paths through another TARGET node. 
+#             # To do this: get subgraph which removes all other target nodes except comb[0] and comb[1]
+#             other_seeds = [seed for seed in seeds if seed not in [comb[0],comb[1]]] 
+#             sub_nodes = [node for node in g.nodes() if node not in other_seeds] #remove the other seeds
+#             #print(other_seeds)
+#             gsub = g.subgraph(sub_nodes)
+#             count += num_paths2(gsub,comb[0],comb[1])
     
-    return count
+#     return count
 
 #note: to get the number of connected triplets where 
 #                      (target a)  (target b)
@@ -193,6 +193,8 @@ def num_2seed_triangles(g, seeds):
 #                          (untargeted)
 #just need to remove the check that the seeds are connected
 
+# def two_seed_tran(g, seeds):
+#     return(num_2seed_triangles(g, seeds) / num_con_triples(g))
 
 def num_con_triples(g):
     #solve for #connected triples from the transitivity formula:
@@ -202,11 +204,68 @@ def num_con_triples(g):
     
     return (3*num_triangles/trans)
 
+#ROHEN: THESE ARE MUCH FASTER VERSIONS OF THE ABOVE. These now run in O(n), instead of taking combinations
 
-def two_seed_tran(g, seeds):
-    return(num_2seed_triangles(g, seeds) / num_con_triples(g))
+def num_paths3(g, i, j):
+    #i,j = name of nodes
+    #number of paths length 3 between node i and node j in graph g
+    #Note: this function covers cases when g.nodes() is not in ascedign order
+    
+    A = nx.adjacency_matrix(g)#ordering of rows/columns is by G.nodes(), not necessarily ascending
+    A = A.todense()
+    
+    A_sq = np.matmul(A,A)
+    A_cubed = np.matmul(A_sq,A)
+    
+    #what's the index of node i and node j in g.nodes?
+    ns = list(g.nodes())
+    ind_i = ns.index(i)
+    ind_j = ns.index(j)
+    
+    return A_cubed[ind_i, ind_j]
+
+def num_2seed_trianglesV2(g, seeds):
+    #how many triangles of (target a) - (target b)
+    #                          \          /
+    #                          (untargeted)
+    count = 0
+    nonseeds = [n for n in g.nodes if n not in seeds]
+    
+    for ns in nonseeds:
+        gsub = g.subgraph(seeds + [ns])
+        count += int(num_paths3(gsub,ns,ns)/2)
+        
+        #each path3 is counted twice: as {i,j,k,i} and {i,k,j,i}
+   
+    return count
+
+def two_seed_tranV2(g, seeds):
+    return(num_2seed_trianglesV2(g, seeds) / num_con_triples(g))
+
+#for a graph g, simulate seeds nsamp times. Each time, calculate the transiticity measures
+#name: string for network name
+def sim_2seed_transitivity(g, p, nsamp = 200):
+    random_2tran = []
+    friend_2tran = []
+    pair_2tran = []
+    
+
+    for i in range(0,nsamp):
+        random_seeds = get_seeds(g, p, 'random')
+        friend_seeds = get_seeds(g, p, 'friend')
+        pair_seeds = get_seeds(g, p, 'pair')
+
+        random_2tran.append(two_seed_tranV2(g, random_seeds))
+        friend_2tran.append(two_seed_tranV2(g, friend_seeds))
+        pair_2tran.append(two_seed_tranV2(g, pair_seeds))
+    
+    #(nsamp x 1 vector, ...)
+    return (random_2tran, friend_2tran, pair_2tran)
 
 
+
+
+#Rajan's
 def num_2seed_triangles_around_a_node(g, node, targets_connected=True):
     
     adopted = [i for i in g.nodes if g.nodes[i]['state'] == 1]

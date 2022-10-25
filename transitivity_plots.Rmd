@@ -1,0 +1,26 @@
+---
+title: "testing"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+raw = read.csv("big_dat_villages.csv")
+head(raw)
+```
+
+```{r}
+dat = raw %>% pivot_longer(starts_with("X2tran"), names_to = 'network', values_to = '2tran', names_prefix = 'X2tran.')
+
+dat = dat %>% group_by(network, seeding.method) %>% summarise(mean_2tran = mean(`2tran`))
+dat = dat %>% separate(network, c("network", "N"), sep = "_") %>% 
+  mutate(N = as.numeric(N))
+dat
+```
+
+
+```{r}
+dat %>% ggplot(aes(N, mean_2tran, color = seeding.method)) + geom_point() + ggtitle("2-seed transitivity from each seeding (averaged over\n50 seeding iterations), for the 43 indian villages")
+```
+
+
