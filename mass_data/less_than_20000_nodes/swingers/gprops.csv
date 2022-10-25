@@ -1,0 +1,7 @@
+# prop_name, value
+name,swingers
+description,"A bipartite sexual affiliation network representing “swing unit” couples (one node per couple) and the parties they attended.[^icon]
+[^icon]: Description obtained from the [ICON](https://icon.colorado.edu) project."
+citation,"['A.-M. Niekampab et al., \"A sexual affiliation network of swingers, heterosexuals practicing risk behaviours that potentiate the spread of sexually transmitted infections: A two-mode approach.\" Social Networks 35(2), 223-236 (2013), https://doi.org/10.1016/j.socnet.2013.02.006']"
+url,https://sites.google.com/site/ucinetsoftware/datasets/covert-networks/swingers
+tags,"['Social', 'Offline', 'Unweighted']"

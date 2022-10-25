@@ -1,1 +1,15 @@
-seed
+Slide 1
+- introducing the problem using the bar plot from the paper
+
+Slide 2
+- heatmap of correlations between seeding methods and centrality measures
+
+Slide 3
+- q-critical plot
+
+Slide 4
+- what a two-seed triangle is and why we're considering them
+- N vs two-seed triangles
+
+Slide 5
+- recap/extra slide
