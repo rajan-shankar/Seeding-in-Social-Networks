@@ -1,0 +1,83 @@
+---
+title: "testing"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(plotly)
+```
+
+
+```{r}
+rawEmpirical = read.csv("2seedTransivityData.csv") %>% 
+  dplyr::select(-1) 
+
+rawRandom = read.csv("2seedTransivityDataRandom.csv") %>% 
+  dplyr::select(-c(1:2)) %>% 
+  set_names(paste0("random_", colnames(.))) 
+
+raw = bind_cols(rawEmpirical, rawRandom)
+head(raw)
+
+
+```
+
+```{r}
+dat = raw %>% 
+  set_names(paste0("networks_", colnames(.))) %>% 
+  rename(seeding.method = "networks_seeding.method") %>% 
+  pivot_longer(starts_with("networks_"), 
+               names_to = 'network', 
+               values_to = '2tran') %>% 
+  mutate(network = str_replace(network, "networks_", "")) %>% 
+  mutate(num_nodes = as.numeric(word(network, 2, -1, "num_nodes."))) %>% 
+  mutate(network = word(network, 1, 1, "num_nodes.")) %>% 
+  mutate(type = ifelse(str_detect(network,"random_"), "Random", "Empirical"))
+
+
+```
+
+
+```{r}
+g = dat %>% 
+  group_by(network, seeding.method, num_nodes, type) %>% 
+  summarise(`2tran` = mean(`2tran`)) %>% 
+  ungroup() %>% 
+  ggplot(aes(num_nodes, `2tran`, color = seeding.method, group = seeding.method, 
+             label = network)) + 
+  geom_point() + 
+  geom_line() +
+  ggtitle("2-seed transitivity over Number of Nodes") +
+  theme_classic() +
+  ggthemes::scale_colour_tableau() +
+  xlab("Number of Nodes") +
+  ylab("Two Seed Transitivity") +
+  facet_wrap(~type)
+
+ggplotly(g)
+```
+
+
+```{r}
+g = dat %>% 
+  group_by(network, seeding.method, num_nodes) %>% 
+  ungroup() %>% 
+  ggplot(aes(num_nodes, y = `2tran`, fill = seeding.method, group = interaction(seeding.method, num_nodes))) + 
+  geom_boxplot(position = "identity", width = 2) +
+  geom_line(data = dat %>%
+              group_by(network, seeding.method, num_nodes) %>%
+              summarise(`2tran` = mean(`2tran`)), aes(x = num_nodes,
+                                                      y = `2tran`,
+                                                      colour = seeding.method,
+                                                      group = seeding.method))  +
+  ggtitle("2-seed transitivity over Number of Nodes") +
+  theme_classic() +
+  ggthemes::scale_fill_tableau() +
+  ggthemes::scale_colour_tableau() +
+  xlab("Number of Nodes") +
+  ylab("Two Seed Transitivity")
+
+ggplotly(g)
+```
+

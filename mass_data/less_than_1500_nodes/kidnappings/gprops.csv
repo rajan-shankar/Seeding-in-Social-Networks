@@ -1,0 +1,6 @@
+# prop_name, value
+name,kidnappings
+description,"Bipartite network of members of the Abu Sayyaf Group in the Philippines, and the kidnapping events they were involved in."
+citation,"['L. Gerdes, K. Ringler, and B. Autin, \"Assessing the Abu Sayyaf Group\'s Strategic and Learning Capacities.\" Studies in Conflict & Terrorism 37(3), 267-293 (2014), http://www.tandfonline.com/doi/abs/10.1080/1057610x.2014.872021']"
+url,https://sites.google.com/site/ucinetsoftware/datasets/covert-networks/philippinekidnappings
+tags,"['Social', 'Offline', 'Unweighted']"
