@@ -11,7 +11,9 @@ def get_seeds(g, p, method):
         raise ValueError("invalid input")
 
     num_seeds = int(p*g.number_of_nodes()) #number of egos
-    samp = random.sample(list(g.nodes()), k = num_seeds) #sample egos w/out replacement
+    
+    connected_nodes = [node for node in g.nodes() if g.degree[node] != 0]#don't consider disconnected nodes
+    samp = random.sample(connected_nodes, k = num_seeds) #sample egos w/out replacement
     
     if method == "random":
         return samp
