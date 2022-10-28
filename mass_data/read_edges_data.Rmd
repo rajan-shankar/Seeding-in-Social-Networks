@@ -1,0 +1,66 @@
+---
+title: "Read EDGES Networks"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(plotly)
+library(igraph)
+```
+
+
+```{r}
+directory = file.path("zippedNetworks")
+
+for (i in list.files(file.path(directory))){
+  print(i)
+  unz <- unzip(file.path(directory,i), 
+               file.path(str_replace(i, "\\.zip", '\\.edges')) 
+               )
+  
+  g = try({
+    dat <- read.table(unz, skip = 0, sep = " ")
+    g <- graph_from_data_frame(dat)
+  })
+  
+  if (class(g) == "try-error"){
+    g = try({dat <- read.table(unz, skip = 0, sep = ",")
+            g <- graph_from_data_frame(dat)
+    })
+  }
+  
+  
+  if (class(g) == "try-error"){
+    g = try({dat <- read.table(unz, skip = 2, sep = " ")
+            g <- graph_from_data_frame(dat)
+    })
+  }
+  
+  if (class(g) == "try-error"){
+    g = try({dat <- read.table(unz, skip = 2, sep = ",")
+            g <- graph_from_data_frame(dat)
+    })
+  }
+  
+  dir.create(file.path("./less_than_1500_nodes", file.path(str_replace(i, "\\.zip", ''))),
+             showWarnings = FALSE)
+  write.graph(g, 
+              file.path(file.path("./less_than_1500_nodes",
+                                  file.path(str_replace(i, "\\.zip", ''))),
+                        "edges.edgelist"), 
+              format = "edgelist")
+  
+
+}
+
+
+readLines(unz)
+```
+
+
+
