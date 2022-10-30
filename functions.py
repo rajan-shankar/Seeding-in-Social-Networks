@@ -206,43 +206,56 @@ def num_con_triples(g):
     
     return (3*num_triangles/trans)
 
-#ROHEN: THESE ARE MUCH FASTER VERSIONS OF THE ABOVE. These now run in O(n), instead of taking combinations
 
-def num_paths3(g, i, j):
-    #i,j = name of nodes
-    #number of paths length 3 between node i and node j in graph g
-    #Note: this function covers cases when g.nodes() is not in ascedign order
+# def num_paths3(g, i, j):
+#     #i,j = name of nodes
+#     #number of paths length 3 between node i and node j in graph g
+#     #Note: this function covers cases when g.nodes() is not in ascedign order
     
-    A = nx.adjacency_matrix(g)#ordering of rows/columns is by G.nodes(), not necessarily ascending
-    A = A.todense()
+#     A = nx.adjacency_matrix(g)#ordering of rows/columns is by G.nodes(), not necessarily ascending
+#     A = A.todense()
     
-    A_sq = np.matmul(A,A)
-    A_cubed = np.matmul(A_sq,A)
+#     A_sq = np.matmul(A,A)
+#     A_cubed = np.matmul(A_sq,A)
     
-    #what's the index of node i and node j in g.nodes?
-    ns = list(g.nodes())
-    ind_i = ns.index(i)
-    ind_j = ns.index(j)
+#     #what's the index of node i and node j in g.nodes?
+#     ns = list(g.nodes())
+#     ind_i = ns.index(i)
+#     ind_j = ns.index(j)
     
-    return A_cubed[ind_i, ind_j]
+#     return A_cubed[ind_i, ind_j]
 
-def num_2seed_trianglesV2(g, seeds):
-    #how many triangles of (target a) - (target b)
-    #                          \          /
-    #                          (untargeted)
+# def num_2seed_trianglesV2(g, seeds):
+#     #how many triangles of (target a) - (target b)
+#     #                          \          /
+#     #                          (untargeted)
+#     count = 0
+#     nonseeds = [n for n in g.nodes if n not in seeds]
+    
+#     for ns in nonseeds:
+#         gsub = g.subgraph(seeds + [ns])
+#         count += int(num_paths3(gsub,ns,ns)/2)
+        
+#         #each path3 is counted twice: as {i,j,k,i} and {i,k,j,i}
+   
+#     return count
+                                                #ROHEN: V4 is the speed god
+def num_2seed_trianglesV4(g, seeds):
+  
     count = 0
     nonseeds = [n for n in g.nodes if n not in seeds]
+    gsub = g.subgraph(seeds)
     
-    for ns in nonseeds:
-        gsub = g.subgraph(seeds + [ns])
-        count += int(num_paths3(gsub,ns,ns)/2)
+    for seed in seeds:
+        for adj_seed in list(gsub.adj[seed]):
+            g_nonseed_neigh = [s for s in g.adj[seed] if s not in seeds] #don't consider seeds as the third vertex
+            
+            count += len(set(g_nonseed_neigh).intersection(set(g.adj[adj_seed])))
         
-        #each path3 is counted twice: as {i,j,k,i} and {i,k,j,i}
-   
-    return count
+    return int(count/2) #double counting each triangle
 
-def two_seed_tranV2(g, seeds):
-    return(num_2seed_trianglesV2(g, seeds) / num_con_triples(g))
+def two_seed_tranV4(g, seeds):
+    return(num_2seed_trianglesV4(g, seeds) / num_con_triples(g))
 
 #for a graph g, simulate seeds nsamp times. Each time, calculate the transiticity measures
 #name: string for network name
@@ -257,9 +270,9 @@ def sim_2seed_transitivity(g, p, nsamp = 200):
         friend_seeds = get_seeds(g, p, 'friend')
         pair_seeds = get_seeds(g, p, 'pair')
 
-        random_2tran.append(two_seed_tranV2(g, random_seeds))
-        friend_2tran.append(two_seed_tranV2(g, friend_seeds))
-        pair_2tran.append(two_seed_tranV2(g, pair_seeds))
+        random_2tran.append(two_seed_tranV4(g, random_seeds))
+        friend_2tran.append(two_seed_tranV4(g, friend_seeds))
+        pair_2tran.append(two_seed_tranV4(g, pair_seeds))
     
     #(nsamp x 1 vector, ...)
     return (random_2tran, friend_2tran, pair_2tran)
