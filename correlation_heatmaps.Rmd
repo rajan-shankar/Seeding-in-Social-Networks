@@ -15,6 +15,6 @@ big_res %>%
   dplyr::select(-Targeting.Method, -Measure) %>% 
   column_to_rownames("index") %>% 
   data.frame() %>% 
-  heatmaply(show_dendrogram = c(FALSE, TRUE), cols = FALSE, dendrogram  = "col")
+  heatmaply(show_dendrogram = c(TRUE, TRUE), cols = FALSE)
 ```
 
