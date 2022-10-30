@@ -11,14 +11,32 @@ library(igraph)
 
 
 ```{r}
-rawEmpirical = read.csv("2seedTransivityData.csv") %>% 
+rawEmpirical = read.csv("2seedTransivityData1.csv") %>% 
   dplyr::select(-1) 
 
-rawRandom = read.csv("2seedTransivityDataRandom.csv") %>% 
+rawEmpiricalOld = read.csv("2seedTransivityData.csv") %>% 
+  dplyr::select(-1) 
+
+rawEmpirical = rawEmpirical %>% 
+  bind_cols(rawEmpiricalOld[, !colnames(rawEmpiricalOld) %in% colnames(rawEmpirical),
+                       drop = FALSE]) 
+
+rawRandom = read.csv("2seedTransivityDataRandom1.csv") %>% 
   dplyr::select(-c(1:2)) %>% 
   set_names(paste0("random_", colnames(.))) 
 
-raw = bind_cols(rawEmpirical, rawRandom)
+
+rawRandomOld = read.csv("2seedTransivityDataRandom.csv") %>% 
+  dplyr::select(-c(1:2)) %>% 
+  set_names(paste0("random_", colnames(.))) 
+
+
+rawRandom = rawRandom %>% 
+  bind_cols(rawRandomOld[, !colnames(rawRandomOld) %in% colnames(rawRandom),
+                       drop = FALSE]) 
+
+raw = bind_cols(rawEmpirical, rawRandom) 
+ 
 head(raw)
 
 
@@ -34,7 +52,9 @@ dat = raw %>%
   mutate(network = str_replace(network, "networks_", "")) %>% 
   mutate(num_nodes = as.numeric(word(network, 2, -1, "num_nodes."))) %>% 
   mutate(network = word(network, 1, 1, "num_nodes.")) %>% 
-  mutate(type = ifelse(str_detect(network,"random_"), "Random", "Empirical"))
+  mutate(type = ifelse(str_detect(network,"random_"), "Random", "Empirical")) %>% 
+  filter(!network %in% c("inf.euroroad_", "primary.school.proximity_", "contacts.prox.high.school.2013.attr_", "contacts.prox.high.school.2013_", "webkb.wisc_")) %>% 
+  filter(!network %in% paste0("random_", c("inf.euroroad_", "primary.school.proximity_", "contacts.prox.high.school.2013.attr_", "contacts.prox.high.school.2013_", "webkb.wisc_")))
 
 
 ```
@@ -62,22 +82,19 @@ ggplotly(g)
 
 ```{r}
 g = dat %>% 
-  group_by(network, seeding.method, num_nodes) %>% 
+  group_by(network, seeding.method, num_nodes, type) %>% 
+  summarise(`2tran` = mean(`2tran`)) %>% 
   ungroup() %>% 
-  ggplot(aes(num_nodes, y = `2tran`, fill = seeding.method, group = interaction(seeding.method, num_nodes))) + 
-  geom_boxplot(position = "identity", width = 2) +
-  geom_line(data = dat %>%
-              group_by(network, seeding.method, num_nodes) %>%
-              summarise(`2tran` = mean(`2tran`)), aes(x = num_nodes,
-                                                      y = `2tran`,
-                                                      colour = seeding.method,
-                                                      group = seeding.method))  +
+  filter(type == "Empirical") %>% 
+  ggplot(aes(num_nodes, `2tran`, color = seeding.method, group = seeding.method, 
+             label = network)) + 
+  geom_point() + 
+  geom_line() +
   ggtitle("2-seed transitivity over Number of Nodes") +
   theme_classic() +
-  ggthemes::scale_fill_tableau() +
   ggthemes::scale_colour_tableau() +
   xlab("Number of Nodes") +
-  ylab("Two Seed Transitivity")
+  ylab("Two Seed Transitivity") 
 
 ggplotly(g)
 ```

@@ -59,7 +59,6 @@ for (i in list.files(file.path(directory))){
 }
 
 
-readLines(unz)
 ```
 
 

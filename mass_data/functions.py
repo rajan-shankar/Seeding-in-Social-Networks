@@ -11,7 +11,9 @@ def get_seeds(g, p, method):
         raise ValueError("invalid input")
 
     num_seeds = int(p*g.number_of_nodes()) #number of egos
-    samp = random.sample(list(g.nodes()), k = num_seeds) #sample egos w/out replacement
+    
+    connected_nodes = [node for node in g.nodes() if g.degree[node] != 0]#don't consider disconnected nodes
+    samp = random.sample(connected_nodes, k = num_seeds) #sample egos w/out replacement
     
     if method == "random":
         return samp
@@ -296,19 +298,19 @@ def get_rhos(gk, q, tmax, rep, seed_method, p = 0.2):
 
         # Initial Condition
         nx.set_node_attributes(gk,0,name="state")#all state 0 at beginning
+        
         seeds = get_seeds(gk, p, seed_method)#except the seeds
-        #print("initial seeds:", seeds)
         for seed in seeds:
             gk.nodes[seed]['state'] = 1
 
         rho.append(np.sum([gk.nodes[i]['state'] for i in gk.nodes()]))
 
-
         # Dynamics
         for t in range(tmax):
             for t2 in range(N): # Do N updates, one update for each node, on average
                 n = random.choice(list(gk.nodes()))
-                if gk.nodes[n]['state']==0:#only change if the state is 0. Once state 1, no going back
+                if gk.nodes[n]['state']==0 and gk.degree[n] > 0:#only change if the state is 0. Once state 1, no going back. 
+                    #Also, don't consider disconnected nodes (degree 0)
                     count=0
                     for m in gk.neighbors(n):
                         count = count + gk.nodes[m]['state']
