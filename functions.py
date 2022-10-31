@@ -275,7 +275,7 @@ def num_2seed_trianglesV4(g, seeds):
     return count 
 
 def two_seed_tranV4(g, seeds):
-    return(num_2seed_trianglesV4(g, seeds) / num_con_triples(g))
+    return(3*num_2seed_trianglesV4(g, seeds) / num_con_triples(g))
 
 #for a graph g, simulate seeds nsamp times. Each time, calculate the transiticity measures
 #name: string for network name
