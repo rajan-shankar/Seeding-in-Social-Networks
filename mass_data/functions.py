@@ -254,6 +254,26 @@ def num_2seed_trianglesV4(g, seeds):
         
     return int(count/2) #double counting each triangle
 
+# def num_2seed_trianglesV4(g, seeds):
+#    #this version doesn't double count. should halve speed of the earlier
+#     count = 0
+#     nonseeds = [n for n in g.nodes if n not in seeds]
+#     gsub = g.subgraph(seeds)
+#     explored = []
+    
+#     for seed in seeds:
+#         for adj_seed in list(gsub.adj[seed]):
+            
+#             if (adj_seed, seed) in explored or (seed, adj_seed) in explored: #if we already considered this link
+#                 continue
+#             else:
+#                 g_nonseed_neigh = [s for s in g.adj[seed] if s not in seeds] #don't consider seeds as the third vertex
+
+#                 count += len(set(g_nonseed_neigh).intersection(set(g.adj[adj_seed])))
+#                 explored.append((seed, adj_seed))
+        
+#     return count 
+
 def two_seed_tranV4(g, seeds):
     return(num_2seed_trianglesV4(g, seeds) / num_con_triples(g))
 

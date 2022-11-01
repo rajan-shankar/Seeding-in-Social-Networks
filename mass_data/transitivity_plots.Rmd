@@ -7,6 +7,8 @@ output: html_document
 library(tidyverse)
 library(plotly)
 library(igraph)
+library(tools)
+library(janitor)
 ```
 
 
@@ -42,6 +44,25 @@ head(raw)
 
 ```
 
+
+```{r}
+clusteringData = read_csv("clusteringData.csv") %>% 
+  dplyr::select(-...1) %>% 
+  column_to_rownames("network") %>% 
+  t() %>% 
+  data.frame() %>% 
+  t() %>% 
+  data.frame() %>% 
+  rownames_to_column("network")
+
+
+clusteringData = clusteringData %>% 
+  gather(-network, key = "metric", value = "clustering") %>% 
+  mutate(network = ifelse(str_detect(metric, "empirical"), paste0(network, "_"), paste0("random_", network, "_"))) 
+
+```
+
+
 ```{r}
 dat = raw %>% 
   set_names(paste0("networks_", colnames(.))) %>% 
@@ -53,18 +74,19 @@ dat = raw %>%
   mutate(num_nodes = as.numeric(word(network, 2, -1, "num_nodes."))) %>% 
   mutate(network = word(network, 1, 1, "num_nodes.")) %>% 
   mutate(type = ifelse(str_detect(network,"random_"), "Random", "Empirical")) %>% 
-  filter(!network %in% c("inf.euroroad_", "primary.school.proximity_", "contacts.prox.high.school.2013.attr_", "contacts.prox.high.school.2013_", "webkb.wisc_")) %>% 
-  filter(!network %in% paste0("random_", c("inf.euroroad_", "primary.school.proximity_", "contacts.prox.high.school.2013.attr_", "contacts.prox.high.school.2013_", "webkb.wisc_")))
-
+  filter(!network %in% c("inf.euroroad_", "primary.school.proximity_", "contacts.prox.high.school.2013.attr_", "contacts.prox.high.school.2013_", "webkb.wisc_", "soc.firm.hi.tech_")) %>% 
+  filter(!network %in% paste0("random_", c("inf.euroroad_", "primary.school.proximity_", "contacts.prox.high.school.2013.attr_", "contacts.prox.high.school.2013_", "webkb.wisc_", "random_soc.firm.hi.tech_")))
 
 ```
 
 
 ```{r}
 g = dat %>% 
+  filter(num_nodes < 3500) %>% 
   group_by(network, seeding.method, num_nodes, type) %>% 
   summarise(`2tran` = mean(`2tran`)) %>% 
   ungroup() %>% 
+  inner_join(clusteringData, by = "network") %>% 
   ggplot(aes(num_nodes, `2tran`, color = seeding.method, group = seeding.method, 
              label = network)) + 
   geom_point() + 
@@ -80,21 +102,105 @@ ggplotly(g)
 ```
 
 
+
+
+
 ```{r}
-g = dat %>% 
+clusterCleaned = clusteringData %>% 
+  mutate(type = ifelse(str_detect(network, "random"), "Random", "Empirical")) %>% 
+  # mutate(metric = case_when(str_detect(metric, "SD") & str_detect(metric, "clust") ~ "Clustering SD", 
+  #                           str_detect(metric, "SD") & str_detect(metric, "Degree") ~ "Degree SD",
+  #                           str_detect(metric, "SD") & str_detect(metric, "Degree") ~ "Degree SD",
+  #                           "Clustering SD", "Clustering")) %>% 
+  mutate(network = str_replace(network, "random_", ""))
+```
+
+
+```{r}
+dataCleaned = dat %>% 
+  filter(num_nodes < 3500) %>% 
   group_by(network, seeding.method, num_nodes, type) %>% 
-  summarise(`2tran` = mean(`2tran`)) %>% 
+  summarise(`2tran` = mean(`2tran`, na.rm = TRUE)) %>% 
   ungroup() %>% 
-  filter(type == "Empirical") %>% 
-  ggplot(aes(num_nodes, `2tran`, color = seeding.method, group = seeding.method, 
-             label = network)) + 
-  geom_point() + 
-  geom_line() +
-  ggtitle("2-seed transitivity over Number of Nodes") +
+  filter(seeding.method != "random") %>% 
+  group_by(network) %>% 
+  group_modify(~ .x %>% 
+                 arrange(seeding.method) %>% 
+                 mutate(difference = (`2tran` - lag(`2tran`))/lag(`2tran`) )) %>% 
+  ungroup() %>% 
+  # filter(!is.na(difference)) %>% 
+  mutate(network = str_replace_all(network, "random_", ""))
+# %>% 
+  # dplyr::select(-seeding.method)
+
+
+```
+
+```{r}
+dataCleaned %>% 
+  inner_join(clusterCleaned) %>% 
+  # filter(`2tran` > )
+  ggplot(aes(x = clustering, y = difference, colour = num_nodes)) +
+  geom_point() +
   theme_classic() +
-  ggthemes::scale_colour_tableau() +
-  xlab("Number of Nodes") +
-  ylab("Two Seed Transitivity") 
+  ggthemes::scale_color_continuous_tableau() +
+  xlab("Metric") +
+  ylab("% Difference in 2-Seed Transitivity") +
+  labs(colour = "Number of Nodes") +
+  facet_wrap(~ metric + type) +
+  theme(legend.position="none") 
+
+
+g = dataCleaned %>% 
+  inner_join(clusterCleaned) %>% 
+  group_by(network, type) %>% 
+  arrange(metric) %>% 
+  group_modify(~ .x %>% mutate(ratio = clustering/lead(clustering))) %>% 
+  ggplot(aes(x = ratio, y = difference, colour = num_nodes)) +
+  geom_point() +
+  theme_classic() +
+  ggthemes::scale_color_continuous_tableau() +
+  xlab("Metric") +
+  ylab("% Difference in 2-Seed Transitivity") +
+  labs(colour = "Number of Nodes") +
+  facet_wrap(~ type) +
+  theme(legend.position="none") 
+
+ggplotly(g)
+```
+
+
+```{r}
+g = dataCleaned %>% 
+  inner_join(clusterCleaned) %>% 
+  filter(metric == "empirical_avgDegree") %>% 
+  ggplot(aes(x = clustering, y = `2tran`, label = network, colour = seeding.method)) +
+  geom_point() +
+  theme_classic() +
+  ggthemes::scale_color_tableau() +
+  xlab("Metric") +
+  ylab("2-Seed Transitivity") +
+  labs(colour = "Number of Nodes") +
+  facet_wrap(~ metric + type) +
+  theme(legend.position="none") 
+
+ggplotly(g)
+```
+
+
+```{r}
+g = dataCleaned %>% 
+  inner_join(clusterCleaned) %>%
+  pivot_wider(names_from = c(type,metric), values_from = clustering) %>% 
+  ggplot(aes(x = Empirical_empirical_clustSD/Empirical_empirical_clust, y = `difference`, label = network)) +
+  geom_point() +
+  theme_classic() +
+  ggthemes::scale_color_continuous_tableau() +
+  xlab("Metric") +
+  ylab("Difference") +
+  labs(colour = "Number of Nodes") +
+  theme(legend.position="none") 
+
 
 ggplotly(g)
 ```
