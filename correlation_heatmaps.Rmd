@@ -1,0 +1,20 @@
+---
+title: "correlation_heatmap"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(heatmaply)
+big_res = read.csv("correlations_dat.csv")
+head(big_res)
+```
+```{r}
+big_res %>% 
+  mutate(index = paste0(Targeting.Method, "_", Measure)) %>% 
+  dplyr::select(-Targeting.Method, -Measure) %>% 
+  column_to_rownames("index") %>% 
+  data.frame() %>% 
+  heatmaply(show_dendrogram = c(TRUE, TRUE), cols = FALSE)
+```
+
