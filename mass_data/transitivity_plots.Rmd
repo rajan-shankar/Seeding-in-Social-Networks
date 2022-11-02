@@ -9,6 +9,7 @@ library(plotly)
 library(igraph)
 library(tools)
 library(janitor)
+library(htmlwidgets)
 ```
 
 
@@ -114,9 +115,10 @@ g = dat %>%
   xlab("Number of Network Nodes") +
   ylab("Two Seed Transitivity") +
   facet_wrap(~graph) +
-  labs(colour = "Seeding Method")
+  labs(colour = "Seed Method")
 
-ggplotly(g)
+ggplotly(g) %>% 
+  saveWidget(file = "plotlyFigures/twoSeedTransMainFigure.html")
 
 
 # ggsave("twoSeedTransMainFigure.pdf", width = 12, height = 6)
@@ -126,15 +128,14 @@ ggplotly(g)
 
 
 
-```{r}
-clusterCleaned = clusteringData %>% 
-  mutate(type = ifelse(str_detect(network, "random"), "Random", "Empirical")) %>% 
-  # mutate(metric = case_when(str_detect(metric, "SD") & str_detect(metric, "clust") ~ "Clustering SD", 
-  #                           str_detect(metric, "SD") & str_detect(metric, "Degree") ~ "Degree SD",
-  #                           str_detect(metric, "SD") & str_detect(metric, "Degree") ~ "Degree SD",
-  #                           "Clustering SD", "Clustering")) %>% 
-  mutate(network = str_replace(network, "random_", ""))
-```
+
+
+
+
+
+
+
+# Scatter
 
 
 ```{r}
@@ -157,12 +158,15 @@ dataCleaned = dat %>%
 
 ```
 
-
-
-
-
-# Scatter
-
+```{r}
+clusterCleaned = clusteringData %>% 
+  mutate(type = ifelse(str_detect(network, "random"), "Random", "Empirical")) %>% 
+  # mutate(metric = case_when(str_detect(metric, "SD") & str_detect(metric, "clust") ~ "Clustering SD", 
+  #                           str_detect(metric, "SD") & str_detect(metric, "Degree") ~ "Degree SD",
+  #                           str_detect(metric, "SD") & str_detect(metric, "Degree") ~ "Degree SD",
+  #                           "Clustering SD", "Clustering")) %>% 
+  mutate(network = str_replace(network, "random_", ""))
+```
 
 ```{r}
 nodeProperties = read_csv("individualNodeProporties.csv") %>% 
@@ -182,30 +186,6 @@ nodeProperties = read_csv("individualNodeProporties.csv") %>%
 
 ```
 
-```{r}
-g = dataCleaned %>% 
-  inner_join(nodeProperties) %>% 
-  filter(!is.na(difference)) %>% 
-  filter(type == "Empirical") %>% 
-  filter(network %in% c("aves.weaver.social_", 
-                        "infect.dublin_",
-                        "physician_trust_",
-                        "KKI_",
-                        "contacts.prox.high.school.2013_",
-                        "fb.messages_",
-                        "email_company_",
-                        "infect.hyper_",
-                        "uni_email_"
-                        # "bt.csv_"
-                        )) %>% 
-  ggplot(aes(x = Degree, y = Triangle, colour = difference > 0)) +
-  geom_point() + 
-  theme_classic() +
-  facet_wrap(~network) +
-  ggthemes::scale_colour_tableau()
-
-ggplotly(g)
-```
 
 
 ```{r}
@@ -226,43 +206,72 @@ dataCleaned = dat %>%
 ```
 
 
+<!-- ```{r} -->
+<!-- g = dataCleaned %>%  -->
+<!--   inner_join(nodeProperties) %>%  -->
+<!--   filter(!is.na(difference)) %>%  -->
+<!--   filter(type == "Empirical") %>%  -->
+<!--   filter(network %in% c("aves.weaver.social_",  -->
+<!--                         "infect.dublin_", -->
+<!--                         "physician_trust_", -->
+<!--                         "KKI_", -->
+<!--                         "contacts.prox.high.school.2013_", -->
+<!--                         "fb.messages_", -->
+<!--                         "email_company_", -->
+<!--                         "infect.hyper_", -->
+<!--                         "uni_email_" -->
+<!--                         # "bt.csv_" -->
+<!--                         )) %>%  -->
+<!--   ggplot(aes(x = Degree, y = Triangle, colour = difference > 0)) + -->
+<!--   geom_point() +  -->
+<!--   theme_classic() + -->
+<!--   facet_wrap(~network) + -->
+<!--   ggthemes::scale_colour_tableau() -->
+
+<!-- ggplotly(g) -->
+<!-- ``` -->
+
 ```{r}
-g = dataCleaned %>% 
-  inner_join(nodeProperties) %>% 
-  filter(!is.na(difference)) %>% 
+g = dataCleaned %>%
+  inner_join(nodeProperties) %>%
+  filter(!is.na(difference)) %>%
   filter(type == "Empirical") %>%
-  group_by(network) %>% 
-  mutate(totalTriangles = sum(Triangle)) %>% 
-  mutate(Degree = max(Degree)) %>% 
-  dplyr::slice(1) %>% 
-  filter(num_nodes > 100) %>% 
-  # filter(network %in% c("aves.weaver.social_", 
+  group_by(network) %>%
+  mutate(totalTriangles = sum(Triangle)) %>%
+  mutate(Degree = max(Degree)) %>%
+  dplyr::slice(1) %>%
+  filter(num_nodes > 100) %>%
+  # filter(network %in% c("aves.weaver.social_",
   #                       "infect.dublin_",
   #                       "physician_trust_",
   #                       "KKI_",
   #                       "fb.messages_",
   #                       "email_company_",
-  #                       "infect.hyper_")) %>% 
-  mutate(Seeding = ifelse(difference > 0, "Pair is Better", "Friend is Better")) %>% 
-  ggplot(aes(x = Triangle/totalTriangles, y = difference, colour = Seeding, label = paste0(network, num_nodes))) +
-  geom_point() + 
+  #                       "infect.hyper_")) %>%
+  mutate(Seeding = ifelse(difference > 0, "Pair is Better", "Friend is Better")) %>%
+  ggplot(aes(x =  Degree, y = difference, colour = Seeding, label = paste0(network, num_nodes))) +
+  geom_point() +
   theme_classic() +
   ggthemes::scale_colour_tableau()  +
   xlab("Max Degree of Network") +
   ylab("Weighted % Difference in Two Seed Transitivity") +
   ggtitle("Maximum Degree of a Network vs % Difference in Two Seed Transitivity in Empirical Networks") +
-  labs(colour = "Seeding Method Performing Better")
+  labs(colour = "Better Method")
+
+
+ggplotly(g) %>% 
+  saveWidget(file = "plotlyFigures/maxDegreeVSdifference.html")
+
 
 ggsave("maxDegreeVSdifference.pdf", width = 12, height = 6)
 
 
-ggplotly(g)
 ```
 
 
 
 ```{r}
-nodeProperties %>% 
+g = nodeProperties %>% 
   group_by(network) %>% 
   mutate(TotalTriangles = sum(Triangle)) %>% 
   mutate(Ratio = Triangle/TotalTriangles) %>% 
@@ -277,9 +286,11 @@ nodeProperties %>%
   ylab("Proportion of Triangles at Node") +
   ggtitle("Random BA Graph Model vs Empirical (Friend Seeding had highest Two-Seed Transitivity in Empirical)")
 
+ggplotly(g) %>% 
+  saveWidget(file = "plotlyFigures/randomVsempiricalFriend.html")
 
 
-ggsave("randomVsempiricalFriend.pdf", width = 12, height = 6)
+# ggsave("randomVsempiricalFriend.pdf", width = 12, height = 6)
 
 ```
 
@@ -303,7 +314,7 @@ ggsave("randomVsempiricalPair.pdf", width = 12, height = 6)
 
 
 ```{r}
-nodeProperties %>% 
+g = nodeProperties %>% 
   group_by(network) %>% 
   mutate(TotalTriangles = sum(Triangle)) %>% 
   mutate(Ratio = Triangle/TotalTriangles) %>% 
@@ -326,8 +337,13 @@ nodeProperties %>%
   facet_wrap(~ network) +
   ylab("Proportion of Triangles at Node") +
   ggthemes::scale_colour_tableau() +
-  labs(colour = "Seeding Method Performing Better") + 
-  ggtitle("Comparison of Degree vs Triangles across Pair and Friend Dominating Sees")
+  labs(colour = "Better Method") + 
+  ggtitle("Comparison of Degree vs Triangles across Pair and Friend Dominating Seeding")
+
+
+
+ggplotly(g) %>% 
+  saveWidget(file = "plotlyFigures/degreeVStriangles.html")
 
 ggsave("degreeVStriangles.pdf", width = 12, height = 6)
 ```
