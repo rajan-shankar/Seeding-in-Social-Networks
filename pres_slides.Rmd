@@ -1,0 +1,67 @@
+---
+title: "Seeding in Social Networks"
+author: "Sourish, Rohen and Rajan"
+institute: "School of Mathematics and Statistics, University of Sydney"
+date: "DATA5441 Project 10"
+output:
+  xaringan::moon_reader:
+    css: [default, metropolis, chocolate-fonts, "styler.css", "pres_slides_files/rajan_usyd_custom.css"]
+    lib_dir: pres_slides_files/themes
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
+                      fig.align = "center", out.width = "100%")
+```
+
+class: inverse, center, middle
+
+# Background
+
+---
+
+# Background
+
+- What are seeds?
+- Seeding methods
+- Leveraging the friendship paradox
+
+---
+
+class: inverse, center, middle
+
+# Problem introduction
+
+---
+
+# Problem introduction
+
+## Alexander et al.
+
+- Pair has higher diffusion to non targeted nodes 
+- Two seed triangles cause higher prob of adoption
+
+---
+
+# Problem introduction
+
+## What we looked at
+
+- How successful was each seeding method in reaching more central nodes (correlation between seeding vs. centrality)? <!-- might be able to explain result in alexander -->
+- Does the seeding method impact the number of two-seed triangles?
+- Does the seeding method impact the spread of innovations in a simple threshold model?
+
+---
+
+class: inverse, center, middle
+
+# Problem introduction
+
+---
+
+
