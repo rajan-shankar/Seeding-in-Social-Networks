@@ -188,12 +188,42 @@ visNetwork(nodes, edges)
 ---
 
 ```{r}
-read_csv("correlations_dat.csv") %>% 
+cor_mat = read_csv("correlations_dat.csv") %>% 
   select(contains("weaver"), `Targeting Method`, `Measure`) %>% 
   set_names(c("aves_weaver_social", "Targeting Method", "Measure")) %>% 
   pivot_wider(names_from = `Measure`, values_from = aves_weaver_social) %>% 
-  column_to_rownames("Targeting Method") %>% 
-  heatmaply::heatmaply(show_dendrogram = c(FALSE, FALSE), main = "Aves Weaver Seeding Correlation Heatmap",
-                       key.title = "Spearman")
+  column_to_rownames("Targeting Method")
+
+cor_mat = rbind(cor_mat[3,], cor_mat[2,], cor_mat[1,])
+
+cor_mat %>% 
+  heatmaply::heatmaply(show_dendrogram = c(FALSE, FALSE), main = "Correlation heatmap on the Aves weaver network (N = 445)",key.title = "Spearman", cellnote = round(as.matrix(cor_mat), 2))#, Rowv = FALSE
 ```
 
+---
+
+```{r}
+big_res = read.csv("correlations_dat.csv")
+big_res = big_res %>%
+  rename_all(funs(stringr::str_replace_all(., 'N.', 'N='))) %>% 
+  rename(`school.contacts.N=327` = `contacts.prox.high.school.2013.N=327`,
+         `kor.mers.N = 186` = `kor.2015.mers.1.00.N=186`,
+         `school.contacts2.N=327` = `contacts.prox.high.school.2013.attr.N=327`,
+         `sgp.sars.N=172` = `sgp.2003.sars.1.00.N=172`,
+          `usa.covid.N = 92`= `usa.2020.covid.6.00.N=92`,
+         `tech.company.N=21`=`high_tech_company.N=21`,
+         `usa.flu.N=286`=`usa.2009.flu.1.00.N=286`,
+         `school.proximity.N=242` = `primary.school.proximity.N=242`)
+
+big_res %>% 
+  mutate(index = paste0(Targeting.Method, "_", Measure)) %>% 
+  dplyr::select(-Targeting.Method, -Measure) %>% 
+  column_to_rownames("index") %>% 
+  data.frame() %>% 
+  heatmaply::heatmaply(show_dendrogram = c(FALSE, FALSE), cols = FALSE)
+```
+
+---
+
+## Rohen: Made a new diagram of the two seed triangles
+!(plot)[slides_plots/two-seed-triangleV2.PNG]
