@@ -47,17 +47,24 @@ g %>%
 
 
 ```{r}
-heatmapData = read_csv("..\\correlations_dat.csv")
+figure11 = read_csv("figure_11.csv")
 ```
 
 
 ```{r}
-heatmapData %>% 
-  select(contains("weaver"), `Targeting Method`, `Measure`) %>% 
-  set_names(c("aves_weaver_social", "Targeting Method", "Measure")) %>% 
-  pivot_wider(names_from = `Measure`, values_from = aves_weaver_social) %>% 
-  column_to_rownames("Targeting Method") %>% 
-  heatmaply::heatmaply(show_dendrogram = c(FALSE, FALSE), main = "Aves Weaver Seeding Correlation Heatmap",
-                       key.title = "Spearman")
+g = figure11 %>% 
+  ggplot(aes(x = q, y = proportion_adopted, colour = seeding_method)) +
+  geom_point() +
+  geom_line() +
+  scale_colour_tableau() +
+  theme_classic() +
+  labs(colour = "Seed Method", y = "Proportion of Nodes Adopting Innovation") +
+  ggtitle("20 Step Threshold Propagation Across q")
+
+ggplotly(g)
+
+
+g %>% 
+  saveRDS(file = "qVSprop.RDS")
 ```
 
