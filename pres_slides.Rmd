@@ -13,11 +13,29 @@ output:
       countIncrementalSlides: false
 ---
 
+
 ```{r setup, include=FALSE}
 options(htmltools.dir.version = FALSE)
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
                       fig.align = "center", out.width = "100%")
+
+
+
+library(tidyverse)
+library(plotly)
 ```
+
+<!-- <style> -->
+<!--   .superbigimage{ -->
+<!--       overflow-x:scroll; -->
+<!--       white-space: nowrap; -->
+<!--   } -->
+
+<!--   .superbigimage img{ -->
+<!--      max-width: none; -->
+<!--   } -->
+<!-- </style> -->
+
 
 class: inverse, center, middle
 
@@ -64,4 +82,56 @@ class: inverse, center, middle
 
 ---
 
+
+
+# Plots
+
+<!-- <div class="superbigimage"> -->
+<!-- </div> -->
+
+
+<!-- <iframe src = "plotly_figures/twoSeedTransMainFigure.html" width = "400" height = "400" frameborder="0"></iframe -->
+
+```{r}
+g = readRDS("plotly_figures/twoSeedTransMainFigure.RDS")
+# g = g  +
+#   theme(axis.title.y = element_text(size = rel(0.8), angle = 90))
+ggplotly(g)
+
+```
+
+
+---
+
+```{r}
+g = readRDS("plotly_figures/degreeVStriangles.RDS")
+ggplotly(g)
+
+```
+
+
+---
+
+
+```{r}
+g = readRDS("plotly_figures/nVScascade.RDS")
+# g = g  +
+#   theme(axis.title.y = element_text(size = rel(0.8), angle = 90))
+ggplotly(g)
+
+```
+
+
+---
+
+
+```{r}
+read_csv("correlations_dat.csv") %>% 
+  select(contains("weaver"), `Targeting Method`, `Measure`) %>% 
+  set_names(c("aves_weaver_social", "Targeting Method", "Measure")) %>% 
+  pivot_wider(names_from = `Measure`, values_from = aves_weaver_social) %>% 
+  column_to_rownames("Targeting Method") %>% 
+  heatmaply::heatmaply(show_dendrogram = c(FALSE, FALSE), main = "Aves Weaver Seeding Correlation Heatmap",
+                       key.title = "Spearman")
+```
 

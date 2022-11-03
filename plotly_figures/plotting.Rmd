@@ -1,0 +1,63 @@
+---
+title: "testing"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(plotly)
+library(igraph)
+library(tools)
+library(janitor)
+library(htmlwidgets)
+library(ggthemes)
+```
+
+
+```{r}
+figure5 = read_csv("figure_5.csv") %>% 
+  mutate(version = ifelse(version == "BA","Barabási Albert", "Empirical")) %>% 
+  mutate(network = str_replace_all(network, "_"," ") %>% str_to_title())
+```
+
+
+
+```{r}
+g = figure5 %>% 
+  ggplot(aes(x = N, y = critical_q, colour = seeding_method, label = network)) +
+  geom_point() +
+  geom_line() +
+  theme_classic() +
+  scale_colour_tableau() +
+  facet_wrap(~version) +
+  labs(colour = "Seed Method", y = "Critical q") +
+  ggtitle("Cascade Threshold Comparison Across Seeding Methods")
+
+
+ggplotly(g) %>% 
+  layout(width = 800) %>% 
+  saveWidget(file = "nVScascade.html")
+
+
+g %>% 
+  saveRDS(file = "nVScascade.RDS")
+```
+
+
+
+
+```{r}
+heatmapData = read_csv("..\\correlations_dat.csv")
+```
+
+
+```{r}
+heatmapData %>% 
+  select(contains("weaver"), `Targeting Method`, `Measure`) %>% 
+  set_names(c("aves_weaver_social", "Targeting Method", "Measure")) %>% 
+  pivot_wider(names_from = `Measure`, values_from = aves_weaver_social) %>% 
+  column_to_rownames("Targeting Method") %>% 
+  heatmaply::heatmaply(show_dendrogram = c(FALSE, FALSE), main = "Aves Weaver Seeding Correlation Heatmap",
+                       key.title = "Spearman")
+```
+

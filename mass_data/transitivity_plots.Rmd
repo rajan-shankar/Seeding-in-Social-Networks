@@ -117,8 +117,15 @@ g = dat %>%
   facet_wrap(~graph) +
   labs(colour = "Seed Method")
 
+
 ggplotly(g) %>% 
-  saveWidget(file = "plotlyFigures/twoSeedTransMainFigure.html")
+  layout(width = 1300) %>% 
+  saveWidget(file = "..\\plotly_figures/twoSeedTransMainFigure.html")
+
+
+g %>% 
+  saveRDS(file = "..\\plotly_figures/twoSeedTransMainFigure.RDS")
+
 
 
 # ggsave("twoSeedTransMainFigure.pdf", width = 12, height = 6)
@@ -260,10 +267,13 @@ g = dataCleaned %>%
 
 
 ggplotly(g) %>% 
-  saveWidget(file = "plotlyFigures/maxDegreeVSdifference.html")
+  saveWidget(file = "..\\plotly_figures/maxDegreeVSdifference")
+
+g %>% 
+  saveRDS(file = "..\\plotly_figures/maxDegreeVSdifference.RDS")
 
 
-ggsave("maxDegreeVSdifference.pdf", width = 12, height = 6)
+# ggsave("maxDegreeVSdifference.pdf", width = 12, height = 6)
 
 
 ```
@@ -287,8 +297,10 @@ g = nodeProperties %>%
   ggtitle("Random BA Graph Model vs Empirical (Friend Seeding had highest Two-Seed Transitivity in Empirical)")
 
 ggplotly(g) %>% 
-  saveWidget(file = "plotlyFigures/randomVsempiricalFriend.html")
+  saveWidget(file = "..\\plotly_figures/randomVsempiricalFriend.html")
 
+ggplotly(g) %>% 
+  saveRDS(file = "..\\plotly_figures/randomVsempiricalFriend.RDS")
 
 # ggsave("randomVsempiricalFriend.pdf", width = 12, height = 6)
 
@@ -343,8 +355,12 @@ g = nodeProperties %>%
 
 
 ggplotly(g) %>% 
-  saveWidget(file = "plotlyFigures/degreeVStriangles.html")
+  saveWidget(file = "..\\plotly_figures/degreeVStriangles.html")
 
-ggsave("degreeVStriangles.pdf", width = 12, height = 6)
+g %>% 
+  saveRDS(file = "..\\plotly_figures/degreeVStriangles.RDS")
+
+
+# ggsave("degreeVStriangles.pdf", width = 12, height = 6)
 ```
 
