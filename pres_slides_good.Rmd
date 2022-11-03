@@ -61,6 +61,9 @@ library(htmlwidgets)
 library(ggthemes)
 library(visNetwork)
 library(geomnet)
+library(igraph)
+library(visNetwork)
+library(geomnet)
 ```
 
 class: inverse, center, middle
@@ -126,10 +129,10 @@ class: inverse, center, middle
 
 # Seeding method vs centrality measure
 
+
 ```{r}
-library(visNetwork)
-library(geomnet)
 dd <- read.table("mass_data/less_than_1500_nodes/aves-weaver-social/edges.edgelist")
+graph <- graph.data.frame(dd, directed=FALSE)
 nodes <- as.data.frame(unique(dd[, 1]))
 colnames(nodes) <- c("id")
 edges <- as.data.frame(dd)
@@ -142,29 +145,14 @@ cluster_df$id <- str_replace(rownames(cluster_df), "X", "") %>% as.numeric()
 #Create group column
 nodes <- left_join(nodes, cluster_df, by = "id")
 colnames(nodes)[2] <- "group"
-visNetwork(nodes, edges)
+network = visNetwork(nodes, edges) %>% 
+  visPhysics(stabilization = FALSE)
+
+
+# visSave(network, file = "network.html")
+network
 ```
 
----
-
-# Seeding method vs centrality measure
-
-```{r}
-dd <- read.table("mass_data/less_than_1500_nodes/fb-messages/edges.edgelist")
-nodes <- as.data.frame(unique(dd[, 1]))
-colnames(nodes) <- c("id")
-edges <- as.data.frame(dd)
-colnames(edges) <- c("from", "to")
-#Louvain Comunity Detection
-cluster <- cluster_louvain(graph)
-cluster_df <- data.frame(as.list(membership(cluster)))
-cluster_df <- as.data.frame(t(cluster_df))
-cluster_df$id <- str_replace(rownames(cluster_df), "X", "") %>% as.numeric()
-#Create group column
-nodes <- left_join(nodes, cluster_df, by = "id")
-colnames(nodes)[2] <- "group"
-visNetwork(nodes, edges)
-```
 
 ---
 
@@ -270,7 +258,7 @@ class: inverse, center, middle
 (graph of proportion adopted vs time)
 
 ```{r, out.width = "100%"}
-knitr::include_graphics("slides_plots/spreading.png.png")
+knitr::include_graphics("slides_plots/spreading.png")
 ```
 
 ---
@@ -308,26 +296,3 @@ class: inverse, center, middle
 
 ---
 
-
-```{r}
-dd <- read.table("mass_data/less_than_1500_nodes/aves-weaver-social/edges.edgelist")
-graph <- graph.data.frame(dd, directed=FALSE)
-nodes <- as.data.frame(unique(dd[, 1]))
-colnames(nodes) <- c("id")
-edges <- as.data.frame(dd)
-colnames(edges) <- c("from", "to")
-#Louvain Comunity Detection
-cluster <- cluster_louvain(graph)
-cluster_df <- data.frame(as.list(membership(cluster)))
-cluster_df <- as.data.frame(t(cluster_df))
-cluster_df$id <- str_replace(rownames(cluster_df), "X", "") %>% as.numeric()
-#Create group column
-nodes <- left_join(nodes, cluster_df, by = "id")
-colnames(nodes)[2] <- "group"
-network = visNetwork(nodes, edges) %>% 
-  visPhysics(stabilization = FALSE)
-
-
-# visSave(network, file = "network.html")
-network
-```
