@@ -71,10 +71,10 @@ library(geomnet)
 # Background
 
 - Seeds: the initial nodes which receive an innovation
-  - Choosing seeds with high centrality, shown to lead to greater diffusion
+  - Choosing seeds with high centrality, often lead to greater diffusion of the innovation
 
-- Seeding methods: random, friend and pair
-  - Utilise the Friendship paradox
+- Seeding methods: 
+  - Utilise the Friendship paradox, in order to target high centrality nodes
 
 
 ```{r, out.width = "100%"}
@@ -84,6 +84,8 @@ knitr::include_graphics("slides_plots/seeding.PNG")
 ---
 
 # Results from Alexander et al.'s (2022) seeding study
+
+Networks mapped interaction between women in residential buildings (suggesting communities based on spatial proximity).
 
 - Pair seeding has higher diffusion to non-targeted nodes (nodes that weren't seeds)
 - Non-targeted node has highest probability of adopting an innovation if it's part of a two-seed triangle
@@ -140,17 +142,14 @@ knitr::include_graphics("slides_plots/threshdiagram.png")
 ]
 
 ---
-# Does each seeding method reach central nodes?
+# How well does each seeding method reach central nodes?
 ## Approach: correlation 
 
 For a node, we simulated its probability of being selected as a seed:
   - Run several seeding iterations
   - Simulated probability  = proportion of times it got selected as seed
 
-We then converted these probabilities to ranks. 
-
-We also ranked nodes by their centrality measures 
-
+Ranked nodes by these probabilites, and by their centrality measures. 
 $\rightarrow$ Spearman rank correlation 
 
 
