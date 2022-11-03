@@ -151,7 +151,7 @@ We then converted these probabilities to ranks.
 
 We also ranked nodes by their centrality measures 
 
-$\rightarrow$ Pearson rank correlation 
+$\rightarrow$ Spearman rank correlation 
 
 
 
