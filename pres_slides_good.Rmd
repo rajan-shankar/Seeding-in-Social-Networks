@@ -66,13 +66,9 @@ library(visNetwork)
 library(geomnet)
 ```
 
-class: inverse, center, middle
 
-# Background
 
----
-
-# Background
+# Background and problem introduction
 
 - What are seeds?
 - Seeding methods
@@ -84,15 +80,7 @@ knitr::include_graphics("slides_plots/random_seeding.PNG")
 
 ---
 
-class: inverse, center, middle
-
-# Problem introduction
-
----
-
-# Problem introduction
-
-## Alexander et al.
+# Results from Alexander et al.'s (2022) seeding study
 
 - Pair has higher diffusion to non targeted nodes 
 - Two seed triangles cause higher prob of adoption
@@ -111,52 +99,21 @@ knitr::include_graphics("slides_plots/two_seed_triangle.PNG")
 
 ---
 
-# Problem introduction
-
-## What we looked at
+# Research questions
 
 - How successful was each seeding method in reaching more central nodes (correlation between seeding vs centrality)? <!-- might be able to explain result in alexander -->
 - Does the seeding method impact the number of two-seed triangles?
+
+```{r, out.width = "100%"}
+knitr::include_graphics("slides_plots/two_seed_triangle.PNG")
+```
+
 - Does the seeding method impact the spread of innovations in a simple threshold model?
 
 ---
 
-class: inverse, center, middle
 
-# Seeding method vs centrality measure
-
----
-
-# Seeding method vs centrality measure
-
-
-```{r}
-dd <- read.table("mass_data/less_than_1500_nodes/aves-weaver-social/edges.edgelist")
-graph <- graph.data.frame(dd, directed=FALSE)
-nodes <- as.data.frame(unique(dd[, 1]))
-colnames(nodes) <- c("id")
-edges <- as.data.frame(dd)
-colnames(edges) <- c("from", "to")
-#Louvain Comunity Detection
-cluster <- cluster_louvain(graph)
-cluster_df <- data.frame(as.list(membership(cluster)))
-cluster_df <- as.data.frame(t(cluster_df))
-cluster_df$id <- str_replace(rownames(cluster_df), "X", "") %>% as.numeric()
-#Create group column
-nodes <- left_join(nodes, cluster_df, by = "id")
-colnames(nodes)[2] <- "group"
-network = visNetwork(nodes, edges) %>% 
-  visPhysics(stabilization = FALSE)
-
-
-# visSave(network, file = "network.html")
-network
-```
-
-
----
-
-# Seeding method vs centrality measure
+# Correlation between seeding method and centrality 
 
 ```{r}
 cor_mat = read_csv("correlations_dat.csv") %>% 
@@ -171,7 +128,9 @@ cor_mat %>%
   heatmaply::heatmaply(show_dendrogram = c(FALSE, FALSE), main = "Correlation heatmap on the Aves weaver network (N = 445)",key.title = "Spearman", cellnote = round(as.matrix(cor_mat), 2))#, Rowv = FALSE
 ```
 
-# Seeding method vs centrality measure
+---
+
+# Seeding method vs centrality across empirical networks
 
 ```{r}
 big_res = read.csv("correlations_dat.csv")
@@ -198,14 +157,10 @@ big_res %>%
 
 # Seeding method vs centrality measure
 
-## Rohen: Made a new diagram of the two seed triangles
-!(plot)[slides_plots/two-seed-triangleV2.PNG]
 
----
-
-class: inverse, center, middle
-
-# Impact of seeding method on two-seed transitivity
+```{r, out.width = "80%"}
+knitr::include_graphics("slides_plots/two-seed-triangleV2.png")
+```
 
 ---
 
@@ -226,30 +181,33 @@ ggplotly(g)
 
 ---
 
-# Impact of seeding method on two-seed transitivity
+# Networks types with higher pair two-seed transitivity
 
 ```{r}
-g = readRDS("plotly_figures/degreeVStriangles.RDS")
-ggplotly(g)
+dd <- read.table("mass_data/less_than_1500_nodes/aves-weaver-social/edges.edgelist")
+graph <- graph.data.frame(dd, directed=FALSE)
+nodes <- as.data.frame(unique(dd[, 1]))
+colnames(nodes) <- c("id")
+edges <- as.data.frame(dd)
+colnames(edges) <- c("from", "to")
+#Louvain Comunity Detection
+cluster <- cluster_louvain(graph)
+cluster_df <- data.frame(as.list(membership(cluster)))
+cluster_df <- as.data.frame(t(cluster_df))
+cluster_df$id <- str_replace(rownames(cluster_df), "X", "") %>% as.numeric()
+#Create group column
+nodes <- left_join(nodes, cluster_df, by = "id")
+colnames(nodes)[2] <- "group"
+network = visNetwork(nodes, edges) %>% 
+  visPhysics(stabilization = FALSE, timestep = 0.75)
 
+
+# visSave(network, file = "network.html")
+network
 ```
 
 ---
 
-# Impact of seeding method on two-seed transitivity
-
-```{r}
-g = readRDS("plotly_figures/maxDegreeVSdifference.RDS")
-ggplotly(g)
-```
-
----
-
-class: inverse, center, middle
-
-# Impact of seeding method on spreading dynamics
-
----
 
 # Impact of seeding method on spreading dynamics
 
@@ -290,9 +248,7 @@ ggplotly(g)
 
 ---
 
-class: inverse, center, middle
-
-# End
+# Conclusion
 
 ---
 
