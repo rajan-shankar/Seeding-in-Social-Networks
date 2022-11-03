@@ -174,35 +174,11 @@ cor_mat %>%
 
 ---
 
-# Seeding method vs centrality across empirical networks
-
-```{r}
-big_res = read.csv("correlations_dat.csv")
-big_res = big_res %>%
-  rename_all(funs(stringr::str_replace_all(., 'N.', 'N='))) %>% 
-  rename(`school.contacts.N=327` = `contacts.prox.high.school.2013.N=327`,
-         `kor.mers.N = 186` = `kor.2015.mers.1.00.N=186`,
-         `school.contacts2.N=327` = `contacts.prox.high.school.2013.attr.N=327`,
-         `sgp.sars.N=172` = `sgp.2003.sars.1.00.N=172`,
-          `usa.covid.N = 92`= `usa.2020.covid.6.00.N=92`,
-         `tech.company.N=21`=`high_tech_company.N=21`,
-         `usa.flu.N=286`=`usa.2009.flu.1.00.N=286`,
-         `school.proximity.N=242` = `primary.school.proximity.N=242`)
-
-big_res %>% 
-  mutate(index = paste0(Targeting.Method, "_", Measure)) %>% 
-  dplyr::select(-Targeting.Method, -Measure) %>% 
-  column_to_rownames("index") %>% 
-  data.frame() %>% 
-  heatmaply::heatmaply(show_dendrogram = c(FALSE, FALSE), cols = FALSE)
-```
-
----
-
 # Two-seed triangles
 
-- Alexander et al.'s maximised the probability and untargetted node adopted a treatment (innovation)
-- It's not only about the neighbours initially targeted, the connection between neighbours (triangles) is also important to diffusion
+- Alexander et al.found that untargeted nodes had the highest probability of adoption, when they were in a two-seed triangle
+
+- Diffusion is not only about the neighbours initially targeted, the connection between neighbours (triangles) is also important
 
 ```{r, out.width = "80%"}
 knitr::include_graphics("slides_plots/two-seed-triangleV2.png")
@@ -280,7 +256,7 @@ ggplotly(g)
 
 # Impact of seeding method on spreading dynamics
 
-## Proportion adopted afte 20 time-steps vs $q$
+## Proportion adopted afte 20 time-steps vs q
 
 ```{r}
 g = readRDS("plotly_figures/qVSprop.RDS")
@@ -294,7 +270,7 @@ ggplotly(g)
 
 # Impact of seeding method on spreading dynamics
 
-## Critical $q$ vs $N$
+## Critical q vs N
 
 ```{r}
 g = readRDS("plotly_figures/nVScascade.RDS")
@@ -308,5 +284,40 @@ ggplotly(g)
 
 # Conclusion
 
+- Friend method correlated with centralities more than the pair method
+
+- Pair seeding method can sometimes reach more two seed triangles and hence may be able to propagate diffusion
+
+- Choice of seeding can impact the spreading of innovations
+
 ---
 
+
+# Appendix
+
+
+---
+# Seeding method vs centrality across empirical networks
+
+```{r}
+big_res = read.csv("correlations_dat.csv")
+big_res = big_res %>%
+  rename_all(funs(stringr::str_replace_all(., 'N.', 'N='))) %>% 
+  rename(`school.contacts.N=327` = `contacts.prox.high.school.2013.N=327`,
+         `kor.mers.N = 186` = `kor.2015.mers.1.00.N=186`,
+         `school.contacts2.N=327` = `contacts.prox.high.school.2013.attr.N=327`,
+         `sgp.sars.N=172` = `sgp.2003.sars.1.00.N=172`,
+          `usa.covid.N = 92`= `usa.2020.covid.6.00.N=92`,
+         `tech.company.N=21`=`high_tech_company.N=21`,
+         `usa.flu.N=286`=`usa.2009.flu.1.00.N=286`,
+         `school.proximity.N=242` = `primary.school.proximity.N=242`)
+
+big_res %>% 
+  mutate(index = paste0(Targeting.Method, "_", Measure)) %>% 
+  dplyr::select(-Targeting.Method, -Measure) %>% 
+  column_to_rownames("index") %>% 
+  data.frame() %>% 
+  heatmaply::heatmaply(show_dendrogram = c(FALSE, FALSE), cols = FALSE)
+```
+
+---
