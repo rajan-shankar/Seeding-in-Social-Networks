@@ -18,18 +18,18 @@ output:
 ---
 
 ```{cat, engine.opts=list(file = "zoom.html")}
-<script src="https://lab.hakim.se/zoom-js/js/zoom.js" type="text/javascript"></script>
-<script type="text/javascript">
-	slideshow.on( "beforeHideSlide", function( slide ) {
-		zoom.out();
-	} );
-	slideshow.on( "afterShowSlide", function( slide ) {
-		document.querySelector( ".remark-visible" ).addEventListener( "click", function( event ) {
-			event.preventDefault();
-			zoom.to( {element: event.target} );
-		} );
-	} );
-</script>
+# <script src="https://lab.hakim.se/zoom-js/js/zoom.js" type="text/javascript"></script>
+# <script type="text/javascript">
+# 	slideshow.on( "beforeHideSlide", function( slide ) {
+# 		zoom.out();
+# 	} );
+# 	slideshow.on( "afterShowSlide", function( slide ) {
+# 		document.querySelector( ".remark-visible" ).addEventListener( "click", function( event ) {
+# 			event.preventDefault();
+# 			zoom.to( {element: event.target} );
+# 		} );
+# 	} );
+# </script>
 ```
 
 <!-- <style> -->
@@ -68,22 +68,25 @@ library(geomnet)
 
 
 
-# Background and problem introduction
+# Background
 
-- What are seeds?
-- Seeding methods
-- Leveraging the friendship paradox
+- Seeds: the initial nodes which receive an innovation
+  - Choosing seeds with high centrality, shown to lead to greater diffusion
+
+- Seeding methods: random, friend and pair
+  - Utilise the Friendship paradox
+
 
 ```{r, out.width = "100%"}
-knitr::include_graphics("slides_plots/random_seeding.PNG")
+knitr::include_graphics("slides_plots/seeding.PNG")
 ```
 
 ---
 
 # Results from Alexander et al.'s (2022) seeding study
 
-- Pair has higher diffusion to non targeted nodes 
-- Two seed triangles cause higher prob of adoption
+- Pair seeding has higher diffusion to non-targeted nodes (nodes that weren't seeds)
+- Non-targeted node has highest probability of adopting an innovation if it's part of a two-seed triangle
 
 .pull-left[
 ```{r, out.width = "100%"}
@@ -101,23 +104,56 @@ knitr::include_graphics("slides_plots/two_seed_triangle.PNG")
 
 # Research questions
 
-- How successful was each seeding method in reaching more central nodes (correlation between seeding vs centrality)? <!-- might be able to explain result in alexander -->
+.pull-left[
 
-```{r, out.width = "100%"}
+- How successful is each seeding method in reaching more central nodes? 
+
+<br>
+
+<br>
+
+- Does the seeding method impact the number of two-seed triangles?
+
+<br>
+
+<br>
+
+- Does the seeding method impact the spread of innovations in a simple threshold model?
+]
+
+<!-- stated earlier that seeds with higher centrality have been found  -->
+.pull-right[
+
+```{r, out.width = "50%"}
 knitr::include_graphics("slides_plots/karate_club.png")
 ```
 
-- Does the seeding method impact the number of two-seed triangles?
 
 ```{r, out.width = "100%"}
 knitr::include_graphics("slides_plots/two_seed_triangle.PNG")
 ```
 
-- Does the seeding method impact the spread of innovations in a simple threshold model?
 
-```{r, out.width = "100%"}
+```{r, out.width = "50%"}
 knitr::include_graphics("slides_plots/threshdiagram.png")
 ```
+]
+
+---
+# Does each seeding method reach central nodes?
+## Approach: correlation 
+
+For a node, we simulated its probability of being selected as a seed:
+  - Run several seeding iterations
+  - Simulated probability  = proportion of times it got selected as seed
+
+We then converted these probabilities to ranks. 
+
+We also ranked nodes by their centrality measures 
+
+$\rightarrow$ Pearson rank correlation 
+
+
 
 ---
 
@@ -163,8 +199,10 @@ big_res %>%
 
 ---
 
-# Seeding method vs centrality measure
+# Two-seed triangles
 
+- Alexander et al.'s maximised the probability and untargetted node adopted a treatment (innovation)
+- It's not only about the neighbours initially targeted, the connection between neighbours (triangles) is also important to diffusion
 
 ```{r, out.width = "80%"}
 knitr::include_graphics("slides_plots/two-seed-triangleV2.png")

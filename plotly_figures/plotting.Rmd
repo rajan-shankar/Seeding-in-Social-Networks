@@ -24,6 +24,7 @@ figure5 = read_csv("figure_5.csv") %>%
 
 ```{r}
 g = figure5 %>% 
+  mutate(version = factor(version, levels = c("Empirical", "Barabási Albert"))) %>% 
   ggplot(aes(x = N, y = critical_q, colour = seeding_method, label = network)) +
   geom_point() +
   geom_line() +
@@ -31,7 +32,7 @@ g = figure5 %>%
   scale_colour_tableau() +
   facet_wrap(~version) +
   labs(colour = "Seed Method", y = "Critical q") +
-  ggtitle("Cascade Threshold Comparison Across Seeding Methods")
+  ggtitle("")
 
 
 ggplotly(g) %>% 
@@ -71,7 +72,7 @@ g = figure11 %>%
   scale_colour_tableau() +
   theme_classic() +
   labs(colour = "Seed Method", y = "Proportion of Nodes Adopting Innovation") +
-  ggtitle("20 Step Threshold Propagation Across q") +
+  ggtitle("") +
   facet_wrap(~network)
 
 ggplotly(g)
@@ -100,7 +101,7 @@ g = spreading %>%
   labs(colour = "Seed Method", 
        y = "Proportion of Nodes Adopting Innovation",
        x = "Iteration Step (Time)") +
-  ggtitle("20 Step Threshold Propagation for Fixed q")
+  ggtitle("")
 
 ggplotly(g)
 
