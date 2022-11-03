@@ -44,6 +44,17 @@ g %>%
 ```
 
 
+```{r}
+(figure5 %>% 
+  ggplot(aes(x = N, y = critical_q, colour = seeding_method, label = network)) +
+  geom_smooth(se = FALSE) +
+  theme_classic() +
+  scale_colour_tableau() +
+  facet_wrap(~version) +
+  labs(colour = "Seed Method", y = "Critical q") +
+  ggtitle("Cascade Threshold Comparison Across Seeding Methods")) %>% 
+  ggplotly()
+```
 
 
 ```{r}
@@ -70,14 +81,6 @@ g %>%
 
 
 
-
-```{r}
-library(igraph)
-
-dd <- read.table("..\\mass_data/less_than_1500_nodes/aves-weaver-social/edges.edgelist")
-graph <- graph.data.frame(dd, directed=FALSE)
-plot(graph)
-```
 
 
 
