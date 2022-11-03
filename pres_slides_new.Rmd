@@ -1,0 +1,226 @@
+---
+title: "Seeding in Social Networks"
+author: "Sourish, Rohen and Rajan"
+institute: "School of Mathematics and Statistics, University of Sydney"
+date: "DATA5441 Project 10"
+output:
+  xaringan::moon_reader:
+    css: [default, metropolis, chocolate-fonts, "styler.css", "pres_slides_files/rajan_usyd_custom.css"]
+    lib_dir: pres_slides_files/themes
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      navigation: 
+        scroll: false
+    includes:
+      after_body: zoom.html
+---
+
+```{cat, engine.opts=list(file = "zoom.html")}
+<script src="https://lab.hakim.se/zoom-js/js/zoom.js" type="text/javascript"></script>
+<script type="text/javascript">
+	slideshow.on( "beforeHideSlide", function( slide ) {
+		zoom.out();
+	} );
+	slideshow.on( "afterShowSlide", function( slide ) {
+		document.querySelector( ".remark-visible" ).addEventListener( "click", function( event ) {
+			event.preventDefault();
+			zoom.to( {element: event.target} );
+		} );
+	} );
+</script>
+```
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, 
+                      fig.align = "center", out.width = "100%")
+
+
+
+library(tidyverse)
+library(plotly)
+library(tidyverse)
+library(plotly)
+library(igraph)
+library(tools)
+library(janitor)
+library(htmlwidgets)
+library(ggthemes)
+library(visNetwork)
+library(geomnet)
+```
+
+<!-- <style> -->
+<!--   .superbigimage{ -->
+<!--       overflow-x:scroll; -->
+<!--       white-space: nowrap; -->
+<!--   } -->
+
+<!--   .superbigimage img{ -->
+<!--      max-width: none; -->
+<!--   } -->
+<!-- </style> -->
+
+
+class: inverse, center, middle
+
+# Background
+
+---
+
+# Background
+
+- What are seeds?
+- Seeding methods
+- Leveraging the friendship paradox
+
+---
+
+class: inverse, center, middle
+
+# Problem introduction
+
+---
+
+# Problem introduction
+
+## Alexander et al.
+
+- Pair has higher diffusion to non targeted nodes 
+- Two seed triangles cause higher prob of adoption
+
+---
+
+# Problem introduction
+
+## What we looked at
+
+- How successful was each seeding method in reaching more central nodes (correlation between seeding vs. centrality)? <!-- might be able to explain result in alexander -->
+- Does the seeding method impact the number of two-seed triangles?
+- Does the seeding method impact the spread of innovations in a simple threshold model?
+
+---
+
+class: inverse, center, middle
+
+# Problem introduction
+
+---
+
+
+
+# Plots
+
+<!-- <div class="superbigimage"> -->
+<!-- </div> -->
+
+
+<!-- <iframe src = "plotly_figures/twoSeedTransMainFigure.html" width = "400" height = "400" frameborder="0"></iframe -->
+
+```{r}
+g = readRDS("plotly_figures/twoSeedTransMainFigure.RDS")
+#   + theme(axis.title.y = element_text(size = rel(0.8)))
+ggplotly(g)
+
+```
+
+
+---
+
+```{r}
+g = readRDS("plotly_figures/degreeVStriangles.RDS")
+ggplotly(g)
+
+```
+
+
+---
+
+```{r}
+g = readRDS("plotly_figures/maxDegreeVSdifference.RDS")
+ggplotly(g)
+```
+
+---
+
+
+```{r}
+g = readRDS("plotly_figures/nVScascade.RDS")
+# g = g  +
+#   theme(axis.title.y = element_text(size = rel(0.8), angle = 90))
+ggplotly(g)
+
+```
+
+---
+```{r}
+g = readRDS("plotly_figures/qVSprop.RDS")
+# g = g  +
+#   theme(axis.title.y = element_text(size = rel(0.8), angle = 90))
+ggplotly(g)
+```
+
+
+---
+
+```{r}
+dd <- read.table("mass_data/less_than_1500_nodes/aves-weaver-social/edges.edgelist")
+graph <- graph.data.frame(dd, directed=FALSE)
+nodes <- as.data.frame(unique(dd[, 1]))
+colnames(nodes) <- c("id")
+edges <- as.data.frame(dd)
+colnames(edges) <- c("from", "to")
+#Louvain Comunity Detection
+cluster <- cluster_louvain(graph)
+cluster_df <- data.frame(as.list(membership(cluster)))
+cluster_df <- as.data.frame(t(cluster_df))
+cluster_df$id <- str_replace(rownames(cluster_df), "X", "") %>% as.numeric()
+#Create group column
+nodes <- left_join(nodes, cluster_df, by = "id")
+colnames(nodes)[2] <- "group"
+network = visNetwork(nodes, edges) %>% 
+  visPhysics(stabilization = FALSE)
+
+
+# visSave(network, file = "network.html")
+network
+```
+
+---
+
+
+<!-- ```{r} -->
+<!-- dd <- read.table("mass_data/less_than_1500_nodes/fb-messages/edges.edgelist") -->
+<!-- graph <- graph.data.frame(dd, directed=FALSE) -->
+<!-- nodes <- as.data.frame(unique(dd[, 1])) -->
+<!-- colnames(nodes) <- c("id") -->
+<!-- edges <- as.data.frame(dd) -->
+<!-- colnames(edges) <- c("from", "to") -->
+<!-- #Louvain Comunity Detection -->
+<!-- cluster <- cluster_louvain(graph) -->
+<!-- cluster_df <- data.frame(as.list(membership(cluster))) -->
+<!-- cluster_df <- as.data.frame(t(cluster_df)) -->
+<!-- cluster_df$id <- str_replace(rownames(cluster_df), "X", "") %>% as.numeric() -->
+<!-- #Create group column -->
+<!-- nodes <- left_join(nodes, cluster_df, by = "id") -->
+<!-- colnames(nodes)[2] <- "group" -->
+
+<!-- network = visNetwork(nodes, edges) %>%  -->
+<!--   visPhysics(stabilization = FALSE) -->
+
+<!-- ``` -->
+
+---
+
+```{r}
+read_csv("correlations_dat.csv") %>% 
+  select(contains("weaver"), `Targeting Method`, `Measure`) %>% 
+  set_names(c("aves_weaver_social", "Targeting Method", "Measure")) %>% 
+  pivot_wider(names_from = `Measure`, values_from = aves_weaver_social) %>% 
+  column_to_rownames("Targeting Method") %>% 
+  heatmaply::heatmaply(show_dendrogram = c(FALSE, FALSE), main = "Aves Weaver Seeding Correlation Heatmap",
+                       key.title = "Spearman")
+```
+
