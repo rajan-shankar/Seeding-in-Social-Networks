@@ -83,3 +83,30 @@ g %>%
 
 
 
+```{r}
+spreading = read_csv("spreading_proportions.csv") %>% 
+  select(contains("fb_friends.csv N=800"), times, seeding) %>% 
+  set_names(c("fb_friends", "Times", "Seeding"))
+
+
+
+g = spreading %>%
+  # mutate(network = str_replace_all(network, "_"," ") %>% str_to_title()) %>% 
+  ggplot(aes(x = Times, y = fb_friends, colour = Seeding)) +
+  geom_point() +
+  geom_line() +
+  scale_colour_tableau() +
+  theme_classic() +
+  labs(colour = "Seed Method", 
+       y = "Proportion of Nodes Adopting Innovation",
+       x = "Iteration Step (Time)") +
+  ggtitle("20 Step Threshold Propagation for Fixed q")
+
+ggplotly(g)
+
+
+g %>%
+  saveRDS(file = "spreading.RDS")
+```
+
+

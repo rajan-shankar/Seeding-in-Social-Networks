@@ -190,7 +190,7 @@ ggplotly(g)
 ---
 
 
-# Why does pair sometimes have higher two-seed transitivity?
+# When does pair have higher two-seed transitivity ?
 
 ```{r}
 g = readRDS("plotly_figures/degreeVStriangles.RDS")
@@ -231,10 +231,11 @@ network
 
 ## Proportion adopted vs time
 
-(graph of proportion adopted vs time)
 
-```{r, out.width = "100%"}
-knitr::include_graphics("slides_plots/spreading.png")
+```{r}
+# knitr::include_graphics("slides_plots/spreading.png")
+g = readRDS("plotly_figures/spreading.RDS")
+ggplotly(g)
 ```
 
 ---
@@ -244,7 +245,7 @@ knitr::include_graphics("slides_plots/spreading.png")
 ## Proportion adopted afte 20 time-steps vs $q$
 
 ```{r}
-g = readRDS("plotly_figures/nVScascade.RDS")
+g = readRDS("plotly_figures/qVSprop.RDS")
 # g = g  +
 #   theme(axis.title.y = element_text(size = rel(0.8), angle = 90))
 ggplotly(g)
@@ -258,7 +259,8 @@ ggplotly(g)
 ## Critical $q$ vs $N$
 
 ```{r}
-g = readRDS("plotly_figures/qVSprop.RDS")
+g = readRDS("plotly_figures/nVScascade.RDS")
+
 # g = g  +
 #   theme(axis.title.y = element_text(size = rel(0.8), angle = 90))
 ggplotly(g)
