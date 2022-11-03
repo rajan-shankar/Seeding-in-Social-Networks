@@ -320,3 +320,12 @@ big_res %>%
 ```
 
 ---
+
+# Max degree vs difference in two seeding transitivity
+
+
+```{r}
+g = readRDS("plotly_figures/maxDegreeVSdifference.RDS")
+ggplotly(g)
+```
+
