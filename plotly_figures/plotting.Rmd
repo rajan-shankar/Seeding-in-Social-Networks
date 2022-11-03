@@ -63,25 +63,23 @@ figure11 = read_csv("figure_11.csv")
 
 
 ```{r}
-g = figure11 %>% 
+g = figure11 %>%
+  mutate(network = str_replace_all(network, "_"," ") %>% str_to_title()) %>% 
   ggplot(aes(x = q, y = proportion_adopted, colour = seeding_method)) +
   geom_point() +
   geom_line() +
   scale_colour_tableau() +
   theme_classic() +
   labs(colour = "Seed Method", y = "Proportion of Nodes Adopting Innovation") +
-  ggtitle("20 Step Threshold Propagation Across q")
+  ggtitle("20 Step Threshold Propagation Across q") +
+  facet_wrap(~network)
 
 ggplotly(g)
 
 
-g %>% 
+g %>%
   saveRDS(file = "qVSprop.RDS")
 ```
-
-
-
-
 
 
 

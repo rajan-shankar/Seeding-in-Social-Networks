@@ -189,6 +189,16 @@ ggplotly(g)
 
 ---
 
+
+# Why does pair sometimes have higher two-seed transitivity?
+
+```{r}
+g = readRDS("plotly_figures/degreeVStriangles.RDS")
+ggplotly(g)
+
+```
+
+---
 # Networks types with higher pair two-seed transitivity
 
 ```{r}
