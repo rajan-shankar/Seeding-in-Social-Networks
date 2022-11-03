@@ -138,7 +138,46 @@ ggplotly(g)
 
 ---
 
+```{r}
 
+library(visNetwork)
+library(geomnet)
+dd <- read.table("mass_data/less_than_1500_nodes/aves-weaver-social/edges.edgelist")
+nodes <- as.data.frame(unique(dd[, 1]))
+colnames(nodes) <- c("id")
+edges <- as.data.frame(dd)
+colnames(edges) <- c("from", "to")
+#Louvain Comunity Detection
+cluster <- cluster_louvain(graph)
+cluster_df <- data.frame(as.list(membership(cluster)))
+cluster_df <- as.data.frame(t(cluster_df))
+cluster_df$id <- str_replace(rownames(cluster_df), "X", "") %>% as.numeric()
+#Create group column
+nodes <- left_join(nodes, cluster_df, by = "id")
+colnames(nodes)[2] <- "group"
+visNetwork(nodes, edges)
+```
+---
+
+
+```{r}
+dd <- read.table("mass_data/less_than_1500_nodes/fb-messages/edges.edgelist")
+nodes <- as.data.frame(unique(dd[, 1]))
+colnames(nodes) <- c("id")
+edges <- as.data.frame(dd)
+colnames(edges) <- c("from", "to")
+#Louvain Comunity Detection
+cluster <- cluster_louvain(graph)
+cluster_df <- data.frame(as.list(membership(cluster)))
+cluster_df <- as.data.frame(t(cluster_df))
+cluster_df$id <- str_replace(rownames(cluster_df), "X", "") %>% as.numeric()
+#Create group column
+nodes <- left_join(nodes, cluster_df, by = "id")
+colnames(nodes)[2] <- "group"
+visNetwork(nodes, edges)
+```
+
+---
 
 ```{r}
 read_csv("correlations_dat.csv") %>% 
