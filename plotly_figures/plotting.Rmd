@@ -68,3 +68,40 @@ g %>%
   saveRDS(file = "qVSprop.RDS")
 ```
 
+
+
+
+```{r}
+library(igraph)
+
+dd <- read.table("..\\mass_data/less_than_1500_nodes/aves-weaver-social/edges.edgelist")
+graph <- graph.data.frame(dd, directed=FALSE)
+plot(graph)
+```
+```{r}
+
+library(visNetwork)
+library(geomnet)
+
+nodes <- as.data.frame(unique(dd[, 1]))
+colnames(nodes) <- c("id")
+
+edges <- as.data.frame(dd)
+colnames(edges) <- c("from", "to")
+```
+
+
+```{r}
+#Louvain Comunity Detection
+cluster <- cluster_louvain(graph)
+cluster_df <- data.frame(as.list(membership(cluster)))
+cluster_df <- as.data.frame(t(cluster_df))
+cluster_df$label <- rownames(cluster_df)
+#Create group column
+nodes <- left_join(nodes, cluster_df, by = "V1")
+```
+
+```{r}
+visNetwork(nodes, edges)
+```
+
