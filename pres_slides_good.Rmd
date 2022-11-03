@@ -102,6 +102,11 @@ knitr::include_graphics("slides_plots/two_seed_triangle.PNG")
 # Research questions
 
 - How successful was each seeding method in reaching more central nodes (correlation between seeding vs centrality)? <!-- might be able to explain result in alexander -->
+
+```{r, out.width = "100%"}
+knitr::include_graphics("slides_plots/karate_club.png")
+```
+
 - Does the seeding method impact the number of two-seed triangles?
 
 ```{r, out.width = "100%"}
@@ -110,8 +115,11 @@ knitr::include_graphics("slides_plots/two_seed_triangle.PNG")
 
 - Does the seeding method impact the spread of innovations in a simple threshold model?
 
----
+```{r, out.width = "100%"}
+knitr::include_graphics("slides_plots/threshdiagram.png")
+```
 
+---
 
 # Correlation between seeding method and centrality 
 
